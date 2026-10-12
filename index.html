@@ -9,13 +9,13 @@
   :root {
     --bg: #f4f6f9; --card: #fff; --text: #1c2430; --muted: #5b6676;
     --accent: #0b5cad; --accent-text: #fff; --border: #d8dee8;
-    --ok: #17803d; --err: #b3261e; --code-bg: #eef3fa;
+    --code-bg: #eef3fa;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #12161c; --card: #1b212b; --text: #e8ecf2; --muted: #9aa6b8;
       --accent: #4c9aff; --accent-text: #0a1220; --border: #2c3544;
-      --ok: #55c27c; --err: #ff8a80; --code-bg: #232c3a;
+      --code-bg: #232c3a;
     }
   }
   * { box-sizing: border-box; }
@@ -33,40 +33,17 @@
   button, .btn { display: inline-block; background: var(--accent); color: var(--accent-text);
     border: 0; border-radius: 10px; padding: 14px 22px; font: inherit; font-weight: 600;
     cursor: pointer; text-decoration: none; width: 100%; text-align: center; }
-  button:disabled { opacity: .6; cursor: wait; }
-  label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: .95rem; }
-  input, textarea { width: 100%; font: inherit; color: var(--text); background: var(--bg);
-    border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-  input:focus, textarea:focus, button:focus-visible, .btn:focus-visible {
-    outline: 3px solid var(--accent); outline-offset: 1px; }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
   .fakeid { background: var(--code-bg); border-radius: 8px; padding: 10px 14px;
-    font-family: ui-monospace, monospace; margin-top: 8px; }
-  .msg { padding: 12px; border-radius: 8px; margin-top: 12px; font-weight: 600; }
-  .msg.err { color: var(--err); border: 1px solid var(--err); }
-  .msg.ok { color: var(--ok); border: 1px solid var(--ok); }
-  .hidden { display: none; }
-  #gate { text-align: center; }
-  #gate input { text-align: center; letter-spacing: .4em; font-size: 1.4rem; max-width: 220px; }
-  #gate button { max-width: 220px; margin-top: 14px; }
+    font-family: ui-monospace, monospace; margin: 8px 0; }
 </style>
 </head>
 <body>
 <header id="titre">Assistance à distance</header>
 <main>
 
-  <section id="gate" class="card">
-    <h2>Code d'accès</h2>
-    <p class="muted">Entrez le code que le technicien vous a donné.</p>
-    <form id="gateForm">
-      <input id="code" type="password" inputmode="numeric" autocomplete="off"
-             maxlength="8" aria-label="Code d'accès" required>
-      <br><button type="submit">Continuer</button>
-    </form>
-    <div id="gateErr" class="msg err hidden" role="alert">Code incorrect. Réessayez.</div>
-  </section>
-
-  <div id="app" class="hidden">
-    <p>Bonjour ! Suivez ces 3 étapes, ça prend environ 2 minutes.</p>
+  <div id="app">
+    <p>Bonjour ! Suivez ces 2 étapes, ça prend environ 2 minutes.</p>
 
     <section class="card">
       <div class="step">Étape 1</div>
@@ -82,103 +59,17 @@
       <p>Cliquez sur « AnyDesk.exe ». Il n'est pas nécessaire de l'installer.
         Une fenêtre s'ouvre avec un numéro, par exemple :</p>
       <div class="fakeid">Ce poste : <strong>123 456 789</strong></div>
-    </section>
-
-    <section class="card">
-      <div class="step">Étape 3</div>
-      <h2>Envoyez-nous ce numéro</h2>
-      <form id="form" novalidate>
-        <label for="nom">Votre nom</label>
-        <input id="nom" name="nom" autocomplete="name" required>
-        <label for="tel">Numéro de téléphone</label>
-        <input id="tel" name="tel" type="tel" autocomplete="tel" placeholder="514-555-0123" required>
-        <label for="id">Numéro AnyDesk</label>
-        <input id="id" name="id" inputmode="numeric" autocomplete="off" placeholder="123 456 789" required>
-        <label for="pb">Votre problème (facultatif)</label>
-        <textarea id="pb" name="pb" rows="3"></textarea>
-        <p><button id="send" type="submit">✔ Envoyer ma demande</button></p>
-        <div id="err" class="msg err hidden" role="alert"></div>
-      </form>
-    </section>
-
-    <section id="done" class="card hidden">
-      <div class="msg ok" role="status">✅ Merci ! Votre demande est envoyée.</div>
-      <p>Gardez la fenêtre AnyDesk ouverte. Un technicien va se connecter dans quelques instants.
-        Cliquez sur « Accepter » quand la fenêtre le demande.</p>
+      <p><strong>Donnez ce numéro au technicien</strong> (par téléphone). Gardez la fenêtre
+        AnyDesk ouverte et cliquez sur « Accepter » quand elle le demande.</p>
     </section>
   </div>
 </main>
 
 <script src="config.js"></script>
 <script>
-(function () {
-  var C = window.CONFIG, $ = function (s) { return document.getElementById(s); };
-  document.getElementById("titre").textContent = C.titre;
-  document.title = C.titre;
-  $("dl").href = C.anydeskUrl;
-
-  function unlock() {
-    $("gate").classList.add("hidden"); $("app").classList.remove("hidden");
-  }
-  try { if (sessionStorage.getItem("ok") === "1") unlock(); } catch (e) {}
-
-  $("gateForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    if ($("code").value.trim() === C.codeAcces) {
-      try { sessionStorage.setItem("ok", "1"); } catch (e) {}
-      unlock();
-    } else { $("gateErr").classList.remove("hidden"); $("code").select(); }
-  });
-
-  function showErr(t) { var el = $("err"); el.textContent = t; el.classList.remove("hidden"); }
-
-  $("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    $("err").classList.add("hidden");
-    var nom = $("nom").value.trim(), tel = $("tel").value.trim(),
-        id = $("id").value.replace(/\D/g, ""), pb = $("pb").value.trim();
-    if (!nom) return showErr("Entrez votre nom.");
-    if (tel.replace(/\D/g, "").length < 10) return showErr("Entrez un numéro de téléphone valide (10 chiffres).");
-    if (id.length < 9 || id.length > 10) return showErr("Le numéro AnyDesk contient 9 ou 10 chiffres. Vérifiez la fenêtre AnyDesk.");
-    if (!C.webhookUrl) return showErr("Service non configuré. Appelez le technicien.");
-
-    var fmtId = id.replace(/(\d{3})(?=\d)/g, "$1 ");
-    var card = {
-      type: "message",
-      attachments: [{
-        contentType: "application/vnd.microsoft.card.adaptive",
-        content: {
-          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-          type: "AdaptiveCard", version: "1.4",
-          body: [
-            { type: "TextBlock", size: "Medium", weight: "Bolder", text: "🔔 Nouvelle demande d'aide" },
-            { type: "FactSet", facts: [
-              { title: "Nom", value: nom },
-              { title: "Téléphone", value: tel },
-              { title: "AnyDesk", value: fmtId },
-              { title: "Problème", value: pb || "(non précisé)" },
-              { title: "Reçu", value: new Date().toLocaleString("fr-CA") }
-            ]}
-          ],
-          actions: [{ type: "Action.OpenUrl", title: "▶ Ouvrir dans AnyDesk", url: "anydesk:" + id }]
-        }
-      }]
-    };
-
-    var btn = $("send"); btn.disabled = true; btn.textContent = "Envoi…";
-    // no-cors : le webhook Teams n'envoie pas d'en-têtes CORS (réponse opaque).
-    fetch(C.webhookUrl, { method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "text/plain" }, body: JSON.stringify(card) })
-      .then(function () {
-        $("form").classList.add("hidden"); $("done").classList.remove("hidden");
-        $("done").scrollIntoView({ behavior: "smooth" });
-      })
-      .catch(function () {
-        btn.disabled = false; btn.textContent = "✔ Envoyer ma demande";
-        showErr("Envoi impossible. Vérifiez votre connexion ou appelez le technicien.");
-      });
-  });
-})();
+  document.getElementById("titre").textContent = window.CONFIG.titre;
+  document.title = window.CONFIG.titre;
+  document.getElementById("dl").href = window.CONFIG.anydeskUrl;
 </script>
 </body>
 </html>
