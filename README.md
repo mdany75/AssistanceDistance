@@ -4,7 +4,7 @@ Site d'assistance à distance : l'usager télécharge AnyDesk, l'ouvre et donne 
 de poste au technicien (par téléphone), qui se connecte ensuite.
 
 Site statique (aucun serveur), hébergé sur GitHub Pages :
-https://911.groupecouture.ca/ (ancienne adresse : https://mdany75.github.io/AssistanceDistance/)
+https://911.groupecouture.ca/AssistanceDistance/ (redirigé depuis https://mdany75.github.io/AssistanceDistance/)
 
 ## Utilisation
 
